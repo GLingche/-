@@ -2,12 +2,15 @@ package cn.zm.trip.restful;
 
 import cn.zm.common.base.ResResult;
 import cn.zm.mybatis.base.BaseController;
-import cn.zm.trip.entity.BusComments;
-import cn.zm.trip.entity.dto.BaseScenicSpotDTO;
-import cn.zm.trip.entity.dto.BusCommentsDTO;
-import cn.zm.trip.entity.dto.ScenicSpotCommentsUserDTO;
-import cn.zm.trip.entity.vo.BusCommentsVO;
-import cn.zm.trip.service.IBusCommentsService;
+import cn.zm.trip.service.*;
+import cn.zm.trip.uitls.JwtUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import entity.*;
+import entity.dto.BaseScenicSpotDTO;
+import entity.dto.BusCommentsDTO;
+import entity.dto.RelaUserAccountDTO;
+import entity.dto.ScenicSpotCommentsUserDTO;
+import entity.vo.BusCommentsVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,6 +20,7 @@ import io.swagger.annotations.Api;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import java.util.Objects;
 
 /**
@@ -33,9 +37,17 @@ public class BusCommentsController extends BaseController {
 
     @Resource
     private IBusCommentsService busCommentsService;
+    @Resource
+    private IBaseAccountService baseAccountService;
+    @Resource
+    private IBaseUserService baseUserService;
+    @Resource
+    private IRelaUserAccountService iRelaUserAccountService;
+    @Resource
+    private IRela_spot_commentsService iRela_spot_commentsService;
+    @Resource
+    private IRela_user_commentsService iRela_user_commentsService;
 
-    // @Resource
-    // private IRelaUserCommentsService relaUserCommentsService;
 
 
     @GetMapping
@@ -54,26 +66,40 @@ public class BusCommentsController extends BaseController {
 
     @PostMapping("/scenic/spot")
     @ApiOperation("业务-用户评论景点")
-    public ResResult scenicSpotCommentsSave(@RequestBody @Validated ScenicSpotCommentsUserDTO dto) {
+    public ResResult scenicSpotCommentsSave(@RequestBody @Validated ScenicSpotCommentsUserDTO dto, HttpServletRequest request) {
         // TODO 新增
+        boolean judge = JwtUtil.checkToken(request);
+        if(!judge) {
+            return ResResult.fail("请登录账号");
+        }
+        String userId = JwtUtil.getUserIdByToken(request);
+        BaseAccount baseAccount = baseAccountService.getById(userId);
+        RelaUserAccountDTO relaUserAccountDTO = new RelaUserAccountDTO();
+        relaUserAccountDTO.setAccountId(baseAccount.getId());
+        relaUserAccountDTO.setId(null);
+        RelaUserAccount relaUserAccount = iRelaUserAccountService.getOne(new QueryWrapper<>(relaUserAccountDTO.convert()));
+        BaseUser baseUser = baseUserService.getById(relaUserAccount.getUserId());
+
         BusComments comments = dto.getCommentsDTO().convert();
         BaseScenicSpotDTO scenicSpotDTO = dto.getScenicSpotDTO();
+
         log.info("评论景点-评论存库");
         busCommentsService.save(comments);
-
+        comments.setId(null);
+        BusComments busComments = busCommentsService.getOne(new QueryWrapper<>(comments));
         log.info("评论景点-景点评论关联存库");
-        // relaScenicSpotCommentsService.save(RelaScenicSpotComments.builder()
-        //     .scenicSpotId(scenicSpotDTO.getId())
-        //     .commentsId(comments.getId())
-        //   .build());
+        iRela_spot_commentsService.save(Rela_spot_comments.builder()
+             .entity_id(scenicSpotDTO.getId())
+             .comments_id(busComments.getId()).type(scenicSpotDTO.getType())
+           .build());
         log.info("评论景点-用户评论关联存库");
 
-        // relaUserCommentsService.save(
-        //   RelaUserComments.builder()
-        //     .commentsId(comments.getId())
-        //     .userId(dto.getUserDTO().getId())
-        //     .build()
-        // );
+        iRela_user_commentsService.save(
+           Rela_user_comments.builder()
+             .comments_id(busComments.getId())
+             .user_id(baseUser.getId())
+             .build()
+         );
 
         return ResResult.succ("新增成功");
     }
@@ -96,10 +122,25 @@ public class BusCommentsController extends BaseController {
 
     @DeleteMapping("{id}")
     @ApiOperation("业务评论表删除")
-    public ResResult del(@PathVariable String id) {
-        // TODO 删除
-        busCommentsService.removeById(id);
-        return ResResult.succ("删除成功");
+    public ResResult del(@PathVariable String id, HttpServletRequest request) {
+        boolean judge = JwtUtil.checkToken(request);
+        if(!judge) {
+            return ResResult.fail("请登录账号");
+        }
+        String userId = JwtUtil.getUserIdByToken(request);
+        BaseAccount baseAccount = baseAccountService.getById(userId);
+        RelaUserAccountDTO relaUserAccountDTO = new RelaUserAccountDTO();
+        relaUserAccountDTO.setAccountId(baseAccount.getId());
+        relaUserAccountDTO.setId(null);
+        RelaUserAccount relaUserAccount = iRelaUserAccountService.getOne(new QueryWrapper<>(relaUserAccountDTO.convert()));
+        BaseUser baseUser = baseUserService.getById(relaUserAccount.getUserId());
+        if(baseUser.getAuth().equals("管理员")){
+            // TODO 删除
+            busCommentsService.removeById(id);
+            return ResResult.succ("删除成功");
+        }
+        return ResResult.fail("您不是管理员,无此权限");
+
     }
 
     @PutMapping

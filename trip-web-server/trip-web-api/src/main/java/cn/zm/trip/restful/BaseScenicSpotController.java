@@ -2,20 +2,24 @@ package cn.zm.trip.restful;
 
 import cn.zm.common.base.ResResult;
 import cn.zm.mybatis.base.BaseController;
-import cn.zm.trip.entity.dto.BaseScenicSpotDTO;
-import cn.zm.trip.entity.vo.BaseScenicSpotVO;
-import cn.zm.trip.service.IBaseScenicSpotService;
+import cn.zm.trip.service.*;
+import cn.zm.trip.uitls.JwtUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import entity.BaseAccount;
+import entity.BaseUser;
+import entity.RelaUserAccount;
+import entity.dto.BaseScenicSpotDTO;
+import entity.dto.RelaUserAccountDTO;
+import entity.vo.BaseScenicSpotVO;
 import org.springframework.web.bind.annotation.RestController;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Api;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import java.util.Objects;
-import java.util.List;
 
 /**
  * 基础景点
@@ -29,6 +33,12 @@ public class BaseScenicSpotController extends BaseController {
 
     @Resource
     private IBaseScenicSpotService baseScenicSpotService;
+    @Resource
+    private IBaseAccountService baseAccountService;
+    @Resource
+    private IBaseUserService baseUserService;
+    @Resource
+    private IRelaUserAccountService iRelaUserAccountService;
 
     @GetMapping
     @ApiOperation("基础景点page查询")
@@ -66,10 +76,24 @@ public class BaseScenicSpotController extends BaseController {
 
     @PostMapping
     @ApiOperation("基础景点新增")
-    public ResResult add(@RequestBody @Validated BaseScenicSpotDTO baseScenicSpot) {
-        // TODO 新增
-        baseScenicSpotService.save(baseScenicSpot.convert());
-        return ResResult.succ("新增成功");
+    public ResResult add(@RequestBody @Validated BaseScenicSpotDTO baseScenicSpot, HttpServletRequest request) {
+        boolean judge = JwtUtil.checkToken(request);
+        if(!judge) {
+            return ResResult.fail("请登录账号");
+        }
+        String userId = JwtUtil.getUserIdByToken(request);
+        BaseAccount baseAccount = baseAccountService.getById(userId);
+        RelaUserAccountDTO relaUserAccountDTO = new RelaUserAccountDTO();
+        relaUserAccountDTO.setAccountId(baseAccount.getId());
+        relaUserAccountDTO.setId(null);
+        RelaUserAccount relaUserAccount = iRelaUserAccountService.getOne(new QueryWrapper<>(relaUserAccountDTO.convert()));
+        BaseUser baseUser = baseUserService.getById(relaUserAccount.getUserId());
+        if(baseUser.getAuth().equals("管理员")){
+            // TODO 新增
+            baseScenicSpotService.save(baseScenicSpot.convert());
+            return ResResult.succ("新增成功");
+        }
+       return ResResult.fail("您不是管理员,无此权限");
     }
 
     @DeleteMapping("{id}")

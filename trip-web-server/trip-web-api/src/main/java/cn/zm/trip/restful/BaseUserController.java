@@ -2,20 +2,23 @@ package cn.zm.trip.restful;
 
 import cn.zm.common.base.ResResult;
 import cn.zm.mybatis.base.BaseController;
-import cn.zm.trip.entity.dto.BaseUserDTO;
-import cn.zm.trip.entity.vo.BaseUserVO;
-import cn.zm.trip.service.IBaseUserService;
+import cn.zm.trip.service.*;
+import cn.zm.trip.uitls.JwtUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import entity.*;
+import entity.dto.BaseUserDTO;
+import entity.dto.RelaUserAccountDTO;
+import entity.dto.RelaUserRoleDTO;
+import entity.vo.BaseUserVO;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.springframework.web.bind.annotation.RestController;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Api;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import java.util.Objects;
-import java.util.List;
 
 /**
  * 基础用户
@@ -29,6 +32,16 @@ public class BaseUserController extends BaseController {
 
     @Resource
     private IBaseUserService baseUserService;
+    @Resource
+    private IBaseAccountService baseAccountService;
+
+    @Resource
+    private IRelaUserAccountService iRelaUserAccountService;
+
+    @Resource
+    private IRelaUserSpotService iRelaUserSpotService;
+    @Resource
+    private IBaseScenicSpotService iBaseScenicSpotService;
 
     @GetMapping
     @ApiOperation("基础用户page查询")
@@ -87,4 +100,30 @@ public class BaseUserController extends BaseController {
         baseUserService.updateById(baseUser.convert());
         return ResResult.succ("修改成功");
     }
+
+
+    @PostMapping("buy/{spotId}")
+    @ApiOperation("基础用户门票服务")
+    public ResResult buy(@PathVariable Long spotId, HttpServletRequest request ) {
+        // TODO 新增
+        boolean judge = JwtUtil.checkToken(request);
+        if(!judge) {
+            return ResResult.fail("请登录账号");
+        }
+        String userId = JwtUtil.getUserIdByToken(request);
+        BaseAccount baseAccount = baseAccountService.getById(userId);
+        RelaUserAccountDTO relaUserAccountDTO = new RelaUserAccountDTO();
+        relaUserAccountDTO.setAccountId(baseAccount.getId());
+        relaUserAccountDTO.setId(null);
+        RelaUserAccount relaUserAccount = iRelaUserAccountService.getOne(new QueryWrapper<>(relaUserAccountDTO.convert()));
+        BaseUser baseUser = baseUserService.getById(relaUserAccount.getUserId());
+
+        iRelaUserSpotService.save(RelaUserSpot.builder().user_id(baseUser.getId()).spot_id(spotId).build());
+        BaseScenicSpot baseScenicSpot =  iBaseScenicSpotService.getById(spotId);
+        baseScenicSpot.setNum(baseScenicSpot.getNum()-1);
+        iBaseScenicSpotService.updateById(baseScenicSpot);
+        return ResResult.succ("新增成功");
+    }
+
+
 }

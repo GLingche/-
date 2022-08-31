@@ -1,9 +1,9 @@
 package cn.zm.trip.service.impl;
 
 import cn.zm.mybatis.utils.ConvertUtil;
-import cn.zm.trip.entity.BaseUser;
-import cn.zm.trip.entity.dto.BaseUserDTO;
-import cn.zm.trip.entity.vo.BaseUserVO;
+import entity.BaseUser;
+import entity.dto.BaseUserDTO;
+import entity.vo.BaseUserVO;
 import cn.zm.trip.mapper.BaseUserMapper;
 import cn.zm.trip.service.IBaseUserService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;

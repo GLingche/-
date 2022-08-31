@@ -1,9 +1,9 @@
 package cn.zm.trip.service.impl;
 
 import cn.zm.mybatis.utils.ConvertUtil;
-import cn.zm.trip.entity.BaseScenicSpot;
-import cn.zm.trip.entity.dto.BaseScenicSpotDTO;
-import cn.zm.trip.entity.vo.BaseScenicSpotVO;
+import entity.BaseScenicSpot;
+import entity.dto.BaseScenicSpotDTO;
+import entity.vo.BaseScenicSpotVO;
 import cn.zm.trip.mapper.BaseScenicSpotMapper;
 import cn.zm.trip.service.IBaseScenicSpotService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;

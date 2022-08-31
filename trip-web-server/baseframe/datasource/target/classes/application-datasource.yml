@@ -5,9 +5,9 @@ spring:
   datasource:
     druid:
       driver-class-name: com.mysql.cj.jdbc.Driver
-      url: jdbc:mysql://localhost:3306/trip_web?useUnicode=true&characterEncoding=UTF-8&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=GMT%2B8
+      url: jdbc:mysql://localhost:3306/trip?useUnicode=true&characterEncoding=UTF-8&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=GMT%2B8&autoReconnect=true&failOverReadOnly=false
       username: root
-      password: root
+      password: 123456
       #连接池配置
       initial-size: 5
       max-active: 100

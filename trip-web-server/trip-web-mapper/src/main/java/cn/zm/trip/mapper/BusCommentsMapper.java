@@ -1,6 +1,6 @@
 package cn.zm.trip.mapper;
 
-import cn.zm.trip.entity.BusComments;
+import entity.BusComments;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 

@@ -1,8 +1,8 @@
 package cn.zm.trip.service;
 
-import cn.zm.trip.entity.BaseAccount;
-import cn.zm.trip.entity.dto.BaseAccountDTO;
-import cn.zm.trip.entity.vo.BaseAccountVO;
+import entity.BaseAccount;
+import entity.dto.BaseAccountDTO;
+import entity.vo.BaseAccountVO;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 

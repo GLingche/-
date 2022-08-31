@@ -1,9 +1,9 @@
 package cn.zm.trip.service.impl;
 
 import cn.zm.mybatis.utils.ConvertUtil;
-import cn.zm.trip.entity.BusComments;
-import cn.zm.trip.entity.dto.BusCommentsDTO;
-import cn.zm.trip.entity.vo.BusCommentsVO;
+import entity.BusComments;
+import entity.dto.BusCommentsDTO;
+import entity.vo.BusCommentsVO;
 import cn.zm.trip.mapper.BusCommentsMapper;
 import cn.zm.trip.service.IBusCommentsService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;

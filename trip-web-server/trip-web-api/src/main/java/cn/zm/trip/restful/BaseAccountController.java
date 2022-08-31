@@ -2,20 +2,17 @@ package cn.zm.trip.restful;
 
 import cn.zm.common.base.ResResult;
 import cn.zm.mybatis.base.BaseController;
-import cn.zm.trip.entity.dto.BaseAccountDTO;
-import cn.zm.trip.entity.vo.BaseAccountVO;
+import entity.dto.BaseAccountDTO;
+import entity.vo.BaseAccountVO;
 import cn.zm.trip.service.IBaseAccountService;
 import org.springframework.web.bind.annotation.RestController;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Api;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import java.util.Objects;
-import java.util.List;
 
 /**
  * 基础账户表

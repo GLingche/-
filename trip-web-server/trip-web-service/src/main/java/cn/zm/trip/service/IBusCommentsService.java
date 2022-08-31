@@ -1,8 +1,8 @@
 package cn.zm.trip.service;
 
-import cn.zm.trip.entity.BusComments;
-import cn.zm.trip.entity.dto.BusCommentsDTO;
-import cn.zm.trip.entity.vo.BusCommentsVO;
+import entity.BusComments;
+import entity.dto.BusCommentsDTO;
+import entity.vo.BusCommentsVO;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 
