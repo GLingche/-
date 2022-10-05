@@ -5,6 +5,7 @@ import cn.zm.mybatis.base.BaseController;
 import entity.dto.BaseAccountDTO;
 import entity.vo.BaseAccountVO;
 import cn.zm.trip.service.IBaseAccountService;
+import jdk.nashorn.internal.lookup.MethodHandleFactory;
 import org.springframework.web.bind.annotation.RestController;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import io.swagger.annotations.ApiOperation;
@@ -13,7 +14,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import java.util.Objects;
-
 /**
  * 基础账户表
  * @author 十渊
@@ -81,7 +81,7 @@ public class BaseAccountController extends BaseController {
     @ApiOperation("基础账户表修改")
     public ResResult update(@RequestBody @Validated BaseAccountDTO baseAccount) {
         // TODO 修改
-        baseAccountService.updateById(baseAccount.convert());
-        return ResResult.succ("修改成功");
+        boolean aNull = Objects.isNull(baseAccountService.updateById(baseAccount.convert()));
+        return ResResult.succ(aNull?null:"修改成功");
     }
 }

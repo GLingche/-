@@ -47,7 +47,8 @@ public class BusCommentsController extends BaseController {
     private IRela_spot_commentsService iRela_spot_commentsService;
     @Resource
     private IRela_user_commentsService iRela_user_commentsService;
-
+    @Resource
+    private IRelaUserSpotService relaUserSpot;
 
 
     @GetMapping
@@ -100,7 +101,11 @@ public class BusCommentsController extends BaseController {
              .user_id(baseUser.getId())
              .build()
          );
-
+        log.info("评论景点-用户景点关联存库");
+        relaUserSpot.save(RelaUserSpot.builder()
+                .spot_id(scenicSpotDTO.getId()).
+                user_id(baseUser.getId()).
+                build());
         return ResResult.succ("新增成功");
     }
 
@@ -147,7 +152,9 @@ public class BusCommentsController extends BaseController {
     @ApiOperation("业务评论表修改")
     public ResResult update(@RequestBody @Validated BusCommentsDTO busComments) {
         // TODO 修改
-        busCommentsService.updateById(busComments.convert());
-        return ResResult.succ("修改成功");
+
+        boolean done = busCommentsService.updateById(busComments.convert());
+
+        return done?ResResult.succ("修改成功"):ResResult.fail("修改失败");
     }
 }
